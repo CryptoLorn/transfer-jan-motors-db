@@ -269,7 +269,7 @@ const start = async () => {
     try {
         // await sequelize.authenticate();
         // await sequelize.sync();
-        app.listen(5001, () => console.log(`Server on port 5001`));
+        app.listen(process.env.PORT, () => console.log(`Server on port 5001`));
     } catch (e) {
         console.log(e);
     }
