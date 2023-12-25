@@ -267,8 +267,8 @@ router.post("/user", async (req, res, next) => {
 
 const start = async () => {
     try {
-        await sequelize.authenticate();
-        await sequelize.sync();
+        // await sequelize.authenticate();
+        // await sequelize.sync();
         app.listen(5001, () => console.log(`Server on port 5001`));
     } catch (e) {
         console.log(e);
