@@ -1,4 +1,8 @@
-module.exports = {
+import { config } from 'dotenv';
+
+config();
+
+export const configs = {
     PORT: process.env.PORT || 5001,
 
     DB_NAME: process.env.DB_NAME,

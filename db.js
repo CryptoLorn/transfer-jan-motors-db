@@ -1,11 +1,11 @@
 import { Sequelize } from "sequelize";
 
-import { DB_NAME, DB_PASSWORD, DB_USER } from "./configs/config.js";
+import { configs } from "./configs/config.js";
 
 export const sequelize = new Sequelize(
-    DB_NAME,
-    DB_USER,
-    DB_PASSWORD,
+    configs.DB_NAME,
+    configs.DB_USER,
+    configs.DB_PASSWORD,
     {
         dialect: "mysql",
         host: "localhost",
