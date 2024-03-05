@@ -1,10 +1,10 @@
-import express, { Router } from "express";
+import express, {Router} from "express";
 import xmlrpc from "xmlrpc";
 
-import { sequelize } from "./db.js";
-import { User } from "./models/user.model.js";
-import { Passport } from "./models/passport.model.js";
-import { configs } from "./configs/config.js";
+import {sequelize} from "./db.js";
+import {User} from "./models/user.model.js";
+import {Passport} from "./models/passport.model.js";
+import {configs} from "./configs/config.js";
 
 const app = express();
 const router = new Router();
@@ -18,7 +18,7 @@ const common = xmlrpc.createClient({url: `${url}/xmlrpc/2/common`});
 const models = xmlrpc.createClient({url: `${url}/xmlrpc/2/object`});
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 app.use("", router);
 
@@ -32,11 +32,20 @@ router.post("/user", async (req, res, next) => {
         if (inn_value) {
             const passportData = await Passport.findOne({where: {inn: inn_value}});
 
-            if (!passportData || !passportData) {
+            if (!passportData) {
                 return res.sendStatus(404);
             } else {
                 const passportConn = passportData.sys_number;
                 const user = await User.findOne({where: {passport_conn: passportConn}});
+                const addressConnection = user.address_conn;
+
+                const address = await sequelize.query(
+                    'SELECT * FROM infobaza.addresses WHERE sys_number BETWEEN :start AND :end',
+                    {
+                        replacements: { start: addressConnection, end: addressConnection },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
 
                 await common.methodCall(
                     "authenticate",
@@ -85,6 +94,7 @@ router.post("/user", async (req, res, next) => {
                                                 x_studio_data_of_issue: passportData.date,
                                                 x_studio_issued: passportData.issued,
                                                 x_studio_inn: passportData.inn,
+                                                x_studio_client_address: `${address[0]?.area} ${address[0]?.city} ${address[0]?.address}`,
                                             }
 
                                             await models.methodCall(
@@ -123,11 +133,20 @@ router.post("/user", async (req, res, next) => {
         } else if (phone_number_value) {
             const userData = await User.findOne({where: {login: phone_number_value}});
 
-            if (!userData || !userData) {
+            if (!userData) {
                 return res.sendStatus(404);
             } else {
+                const addressConnection = userData.address_conn;
                 const passportConn = userData.passport_conn;
                 const passport = await Passport.findOne({where: {sys_number: passportConn}});
+
+                const address = await sequelize.query(
+                    'SELECT * FROM infobaza.addresses WHERE sys_number BETWEEN :start AND :end',
+                    {
+                        replacements: { start: addressConnection, end: addressConnection },
+                        type: sequelize.QueryTypes.SELECT
+                    }
+                );
 
                 await common.methodCall(
                     "authenticate",
@@ -176,6 +195,7 @@ router.post("/user", async (req, res, next) => {
                                                 x_studio_data_of_issue: passport.date,
                                                 x_studio_issued: passport.issued,
                                                 x_studio_inn: passport.inn,
+                                                x_studio_client_address: `${address[0]?.area} ${address[0]?.city} ${address[0]?.address}`,
                                             }
 
                                             await models.methodCall(
