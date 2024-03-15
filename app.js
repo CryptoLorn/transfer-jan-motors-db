@@ -7,7 +7,7 @@ import {Passport} from "./models/passport.model.js";
 import {configs} from "./configs/config.js";
 
 const app = express();
-const router = new Router()
+const router = new Router();
 
 const url = configs.ODOO_URL;
 const db = configs.ODOO_DB;
